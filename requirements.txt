@@ -25,7 +25,7 @@ seaborn==0.13.2
 
 # Application Insights
 opencensus-ext-azure==1.1.9
-opencensus-ext-requests==0.12.1
+opencensus-ext-requests
 # Drift Detection
 scipy==1.11.4
 matplotlib==3.8.2
