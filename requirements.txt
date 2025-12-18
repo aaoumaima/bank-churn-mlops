@@ -30,3 +30,5 @@ opencensus-ext-requests
 scipy==1.11.4
 matplotlib==3.8.2
 
+opencensus-ext-fastapi
+opencensus-ext-azure
