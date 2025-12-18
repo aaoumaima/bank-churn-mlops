@@ -29,4 +29,4 @@ opencensus-ext-requests
 # Drift Detection
 scipy==1.11.4
 matplotlib==3.8.2
-seaborn==0.13.0
+
