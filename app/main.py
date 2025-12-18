@@ -63,18 +63,7 @@ app.add_middleware(
 )
 
 
-if APPINSIGHTS_CONN:
-    tracer = Tracer(
-        exporter=AzureExporter(
-            connection_string=APPINSIGHTS_CONN
-        ),
-        sampler=ProbabilitySampler(1.0)  # 100% des requêtes
-    )
 
-    app.add_middleware(
-        FastAPIMiddleware,
-        tracer=tracer
-    )
 MODEL_PATH = os.getenv("MODEL_PATH", "model/churn_model.pkl")
 model = None
 
