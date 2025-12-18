@@ -11,6 +11,8 @@ import json
 from scipy.stats import ks_2samp  
 import glob  
 from pathlib import Path
+from app.drift_detect import detect_drift
+
 
 # Configuration du logging - AJOUT Application Insights
 logging.basicConfig(level=logging.INFO)
@@ -331,66 +333,30 @@ def get_drift_status():
 
 @app.post("/drift/check", tags=["Monitoring"])
 def check_drift_now(threshold: float = 0.05):
-    """
-    Lance une vérification de drift immédiate
-    
-    Args:
-        threshold: Seuil de p-value (défaut: 0.05)
-    
-    Returns:
-        dict: Résultats de la détection de drift
-    """
     try:
-        import subprocess
-        
-        # Vérifier que les fichiers existent
-        if not Path("data/bank_churn.csv").exists():
-            raise HTTPException(
-                status_code=404,
-                detail="Fichier de référence manquant: data/bank_churn.csv"
-            )
-        
-        if not Path("data/production_data.csv").exists():
-            return {
-                "status": "no_production_data",
-                "message": "Aucune donnée de production disponible",
-                "instruction": "Générez d'abord des données: python generate_drift_data.py"
-            }
-        
-        # Exécuter la détection de drift
-        result = subprocess.run(
-            ["python", "drift_detection.py"],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        
-        if result.returncode == 0:
-            return {
-                "status": "success",
-                "message": "Détection de drift exécutée avec succès",
-                "output": result.stdout,
-                "instruction": "Consultez /drift/status pour les résultats"
-            }
-        else:
-            return {
-                "status": "error",
-                "message": "Erreur lors de l'exécution",
-                "error": result.stderr
-            }
-            
-    except subprocess.TimeoutExpired:
-        raise HTTPException(
-            status_code=504,
-            detail="Timeout - La détection a pris trop de temps"
-        )
-    except Exception as e:
-        logger.error(f"Erreur lors de la vérification de drift: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur: {str(e)}"
+        from app.drift_detect import detect_drift
+
+        results = detect_drift(
+            reference_file="data/bank_churn.csv",
+            production_file="data/production_data.csv",
+            threshold=threshold
         )
 
+        return {
+            "status": "success",
+            "features_analyzed": len(results),
+            "features_drifted": sum(
+                1 for r in results.values() if r["drift_detected"]
+            )
+        }
+
+    except Exception as e:
+        tb = traceback.format_exc()
+        print("❌ DRIFT ERROR:\n", tb)   # 👈 VISIBLE DANS CONSOLE
+        raise HTTPException(
+            status_code=500,
+            detail=tb
+        )
 
 @app.get("/drift/visualizations", tags=["Monitoring"])
 def list_drift_visualizations():
