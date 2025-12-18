@@ -14,7 +14,10 @@ from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 from app.models import CustomerFeatures, PredictionResponse, HealthResponse
 from app.drift_detect import detect_drift
-
+from opencensus.ext.azure.trace_exporter import AzureExporter
+from opencensus.trace.samplers import ProbabilitySampler
+from opencensus.trace.tracer import Tracer
+from opencensus.ext.fastapi.fastapi_middleware import FastAPIMiddleware
 
 # ============================================================
 # LOGGING & APPLICATION INSIGHTS
@@ -59,6 +62,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+if APPINSIGHTS_CONN:
+    tracer = Tracer(
+        exporter=AzureExporter(
+            connection_string=APPINSIGHTS_CONN
+        ),
+        sampler=ProbabilitySampler(1.0)  # 100% des requêtes
+    )
+
+    app.add_middleware(
+        FastAPIMiddleware,
+        tracer=tracer
+    )
 MODEL_PATH = os.getenv("MODEL_PATH", "model/churn_model.pkl")
 model = None
 
