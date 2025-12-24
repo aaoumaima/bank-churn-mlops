@@ -46,7 +46,7 @@ else:
 # ============================================================
 
 app = FastAPI(
-    title="Bank Churn Prediction API",
+    title="Bank Churn Prediction API 5DS cours du soir",
     description="API de prédiction et monitoring du churn client",
     version="1.0.0"
 )

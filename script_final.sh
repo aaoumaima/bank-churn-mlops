@@ -9,7 +9,7 @@ FALLBACK_LOCATION="northeurope"     # Fallback garanti
 ACR_NAME="mlops$(whoami | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]')"  # 100% minuscules
 CONTAINER_APP_NAME="bank-churn" 
 CONTAINERAPPS_ENV="env-mlops-workshop"
-IMAGE_NAME="bank-churn-api"
+IMAGE_NAME="bank-churn-api" # à partir de ton image docker
 IMAGE_TAG="v1"
 TARGET_PORT=8000
 
